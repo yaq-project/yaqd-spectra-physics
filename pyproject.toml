@@ -32,6 +32,8 @@ dev = ["black", "pre-commit"]
 [tool.flit.scripts]
 yaqd-spectra-physics-millennia = "yaqd_spectra_physics._spectra_physics_millennia:SpectraPhysicsMillennia.main"
 
+[tool.flit.sdist]
+exclude=["supplemental/"]
 
 [tool.black]
 line-length = 99
