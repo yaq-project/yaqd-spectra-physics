@@ -1,0 +1,249 @@
+{
+    "config": {
+        "baud_rate": {
+            "default": 9600,
+            "doc": "Dip switch S1 on laser head determines baud rate (consult manual). Default is 9600.",
+            "origin": "uses-uart",
+            "type": "int"
+        },
+        "enable": {
+            "default": true,
+            "doc": "Disable this daemon. The kind entry-point will not attempt to start this daemon.",
+            "origin": "is-daemon",
+            "type": "boolean"
+        },
+        "limits": {
+            "default": [
+                0.2,
+                5.0
+            ],
+            "doc": "Lasing power limits (Watts).",
+            "type": "limits"
+        },
+        "log_level": {
+            "default": "info",
+            "doc": "Set daemon log-level.",
+            "origin": "is-daemon",
+            "type": {
+                "name": "level",
+                "symbols": [
+                    "debug",
+                    "info",
+                    "notice",
+                    "warning",
+                    "error",
+                    "critical",
+                    "alert",
+                    "emergency"
+                ],
+                "type": "enum"
+            }
+        },
+        "log_to_file": {
+            "default": false,
+            "doc": "Optionally force logging to a file.",
+            "origin": "is-daemon",
+            "type": "boolean"
+        },
+        "make": {
+            "default": null,
+            "origin": "is-daemon",
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "model": {
+            "default": null,
+            "origin": "is-daemon",
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "port": {
+            "doc": "TCP port for daemon to occupy.",
+            "origin": "is-daemon",
+            "type": "int"
+        },
+        "refresh_wait": {
+            "default": 30,
+            "doc": "Wait interval, in seconds, to poll state when idle.  Default is 30 sec.",
+            "type": "int"
+        },
+        "serial": {
+            "default": null,
+            "doc": "Serial number for the particular device represented by the daemon",
+            "origin": "is-daemon",
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "serial_port": {
+            "origin": "uses-uart",
+            "type": "string"
+        }
+    },
+    "doc": "Millennia serial interface",
+    "fields": {
+        "power": {
+            "getter": "get_power",
+            "setter": "set_power",
+            "type": "float"
+        }
+    },
+    "installation": {
+        "PyPI": "https://pypi.org/project/yaqd-spectra-physics"
+    },
+    "links": {
+        "bugtracker": "https://github.com/yaq-project/yaqd-spectra-physics/issues",
+        "source": "https://github.com/yaq-project/yaqd-spectra-physics"
+    },
+    "messages": {
+        "busy": {
+            "doc": "Returns true if daemon is currently busy.",
+            "origin": "is-daemon",
+            "request": [],
+            "response": "boolean"
+        },
+        "direct_serial_write": {
+            "doc": "Expose direct access to the serial port to clients.\n\nThis should not be encouraged for normal use, but may be very important for debugging.\nIf a device is expected to return data, it should be logged at the INFO level, not returned to the client.\nThis is done to allow long tasks to be run asynchronously, and to explicitly discourage use of this method except when debugging.\nSetting `busy` to true is encouraged, but individual daemon writers should consider their own use case.\n",
+            "origin": "uses-serial",
+            "request": [
+                {
+                    "name": "message",
+                    "type": "bytes"
+                }
+            ],
+            "response": "string"
+        },
+        "get_config": {
+            "doc": "Full configuration for the individual daemon as defined in the TOML file.\nThis includes defaults and shared settings not directly specified in the daemon-specific TOML table.\n",
+            "origin": "is-daemon",
+            "request": [],
+            "response": "string"
+        },
+        "get_config_filepath": {
+            "doc": "String representing the absolute filepath of the configuration file on the host machine.\n",
+            "origin": "is-daemon",
+            "request": [],
+            "response": "string"
+        },
+        "get_state": {
+            "doc": "Get version of the running daemon",
+            "origin": "is-daemon",
+            "request": [],
+            "response": "string"
+        },
+        "id": {
+            "doc": "JSON object with information to identify the daemon, including name, kind, make, model, serial.\n",
+            "origin": "is-daemon",
+            "request": [],
+            "response": {
+                "type": "map",
+                "values": [
+                    "null",
+                    "string"
+                ]
+            }
+        },
+        "query": {
+            "doc": "Issue serial command and receive response.  Command checks for and logs errors.",
+            "request": [
+                {
+                    "name": "message",
+                    "type": "bytes"
+                }
+            ],
+            "response": "string"
+        },
+        "shutdown": {
+            "doc": "Cleanly shutdown (or restart) daemon.",
+            "origin": "is-daemon",
+            "request": [
+                {
+                    "default": false,
+                    "name": "restart",
+                    "type": "boolean"
+                }
+            ],
+            "response": "null"
+        }
+    },
+    "protocol": "spectra-physics-millennia",
+    "requires": [],
+    "state": {
+        "c1": {
+            "default": "0",
+            "doc": "measured diode currents (Amperes)",
+            "type": "string"
+        },
+        "c2": {
+            "default": "0",
+            "doc": "measured diode currents (Amperes)",
+            "type": "string"
+        },
+        "error_code": {
+            "default": "0",
+            "doc": "Code for status that displays on controller. See manual Appendix A.",
+            "type": "string"
+        },
+        "power": {
+            "default": "0",
+            "doc": "measured laser power (Watts)",
+            "type": "string"
+        },
+        "set_power": {
+            "default": "0",
+            "doc": "destination power",
+            "type": "string"
+        }
+    },
+    "traits": [
+        "is-daemon",
+        "uses-serial",
+        "uses-uart"
+    ],
+    "types": [
+        {
+            "name": "mode",
+            "symbols": [
+                "P",
+                "C%"
+            ],
+            "type": "enum"
+        },
+        {
+            "items": "float",
+            "name": "limits",
+            "type": "array"
+        },
+        {
+            "fields": [
+                {
+                    "name": "shape",
+                    "type": {
+                        "items": "int",
+                        "type": "array"
+                    }
+                },
+                {
+                    "name": "typestr",
+                    "type": "string"
+                },
+                {
+                    "name": "data",
+                    "type": "bytes"
+                },
+                {
+                    "name": "version",
+                    "type": "int"
+                }
+            ],
+            "logicalType": "ndarray",
+            "name": "ndarray",
+            "type": "record"
+        }
+    ]
+}

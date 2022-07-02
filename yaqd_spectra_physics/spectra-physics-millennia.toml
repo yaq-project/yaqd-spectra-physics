@@ -1,0 +1,115 @@
+protocol = "spectra-physics-millennia"
+doc = "Millennia serial interface"
+traits = [
+    "is-daemon",
+    "uses-uart",
+    "uses-serial",
+]
+
+[links]
+source = "https://github.com/yaq-project/yaqd-spectra-physics"
+bugtracker = "https://github.com/yaq-project/yaqd-spectra-physics/issues"
+
+[installation]
+PyPI = "https://pypi.org/project/yaqd-spectra-physics"
+
+[[types]]
+name = "mode"
+type = "enum"
+symbols = ["P", "C%"]
+
+[[types]]
+name = "limits"
+type = "array"
+items = "float"
+
+[config]
+
+[config.limits]
+doc = "Lasing power limits (Watts)."
+type = "limits"
+default = [0.2, 5.0]
+
+[config.baud_rate]
+doc = "Dip switch S1 on laser head determines baud rate (consult manual). Default is 9600."
+default = 9600
+
+[config.refresh_wait]
+doc = "Wait interval, in seconds, to poll state when idle.  Default is 30 sec."
+type = "int"
+default = 30
+
+[state]
+
+# [state.emission]
+# doc = "Whether lasing is on (True) or off (False)."
+# type="boolean"
+# default = false
+
+# [state.mode]
+# doc = "0 for current mode, 1 for power mode.  Should always be in power mode."
+# type = "mode"
+# default = "P"
+
+
+[state.set_power]
+doc = "destination power"
+type = "string"
+default = "0"
+
+[state.power]
+doc = "measured laser power (Watts)"
+type = "string"
+default = "0"
+
+[state.c1]
+doc = "measured diode currents (Amperes)"
+type = "string"
+default = "0"
+
+[state.c2]
+doc = "measured diode currents (Amperes)"
+type = "string"
+default = "0"
+
+[state.error_code]
+doc = "Code for status that displays on controller. See manual Appendix A."
+type = "string"
+default = "0"
+
+[messages]
+
+[messages.direct_serial_write]
+response = "string"
+
+[messages.query]
+doc = "Issue serial command and receive response.  Command checks for and logs errors."
+request = [{"name"="message", "type"="bytes"}]
+response = "string"
+
+# [fields]
+
+# [fields.emission]
+# type = "boolean"
+# getter = "get_emission"
+# setter = "set_emission"
+
+# [fields.mode]
+# type = "mode"
+# getter = "get_mode"
+# setter = "set_mode"
+
+# [fields.current]
+# type = "array"
+# getter = "get_current"
+# setter = "set_current"
+
+[fields.power]
+type = "float"
+getter = "get_power"
+setter = "set_power"
+
+
+
+
+
