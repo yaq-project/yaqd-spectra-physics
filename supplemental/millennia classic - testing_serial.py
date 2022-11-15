@@ -4,7 +4,7 @@ from yaqd_core import aserial
 import asyncio
 
 mil = aserial.ASerial("COM7", baudrate=9600, xonxoff=True)
-mil.timeout=0.1
+mil.timeout = 0.1
 # mil = serial.Serial("COM7", baudrate=9600, xonxoff=True, timeout=2)
 
 start = time.time()

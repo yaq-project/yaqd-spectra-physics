@@ -16,16 +16,14 @@ power_re = re.compile(r"\d+.\d+W")
 # TODO: HasPosition, HasLimits for power control
 # TODO: IsSensor: use channels for monitoring power, currents
 
+
 class SpectraPhysicsMillennia(UsesUart):
     _kind = "spectra-physics-millennia"
 
     def __init__(self, name, config, config_filepath):
         super().__init__(name, config, config_filepath)
         self._ser = aserial.ASerial(
-            config["serial_port"], 
-            baudrate=config["baud_rate"],
-            eol=b"\n",
-            xonxoff=True
+            config["serial_port"], baudrate=config["baud_rate"], eol=b"\n", xonxoff=True
         )
         # ddk: cannot get aserial commands to work; restricting to synchronous for now.
         self._ser.timeout = 0.1
@@ -34,8 +32,7 @@ class SpectraPhysicsMillennia(UsesUart):
         self.logger.info(f"info {info}")
 
     async def update_state(self):
-        """simple repeating update state. No _busy dependence.
-        """
+        """simple repeating update state. No _busy dependence."""
         state_keys = ["set_power", "power", "c1", "c2", "error_code"]
         while True:
             previous = {k: self._state[k] for k in state_keys}
@@ -51,7 +48,7 @@ class SpectraPhysicsMillennia(UsesUart):
                     pattern = current_re
                 else:
                     pattern = int_re
-                while True: # retry at ~2Hz for failed requests 
+                while True:  # retry at ~2Hz for failed requests
                     newval, alarm = await self._write(command)
                     self.logger.debug(f"{newval}, {alarm}")
                     if alarm:
@@ -68,7 +65,7 @@ class SpectraPhysicsMillennia(UsesUart):
                         continue
                     self._state[key] = match[0]
                     break
-            changed = {k : [previous[k], new[k]] for k in previous if previous[k] != new[k]}
+            changed = {k: [previous[k], new[k]] for k in previous if previous[k] != new[k]}
             if changed:
                 for k, v in changed.items():
                     self.logger.info(f"{k}: {v[0]} -> {v[1]}")
@@ -77,14 +74,14 @@ class SpectraPhysicsMillennia(UsesUart):
                     self.logger.debug(f"{k}: {previous[k]} -> {new[k]}")
             await asyncio.sleep(self._config["refresh_wait"])
 
-    def direct_serial_write(self, message:bytes) -> str:
+    def direct_serial_write(self, message: bytes) -> str:
         self._ser.write(message)
         response = self._ser.read_until()
         self.logger.info(response)
         self.logger.info("leave dsw")
         return response.decode().rstrip("\\n")
 
-    def query(self, message:bytes) -> str:
+    def query(self, message: bytes) -> str:
         """
         synchronous message yields response.
         regex restricts requests to "safe" operations (questions).
@@ -101,9 +98,8 @@ class SpectraPhysicsMillennia(UsesUart):
             raise ValueError(f"{message} is not a query")
         return self.direct_serial_write(message)
 
-    async def _write(self, command:str):
-        """asynchronous communication.  Follows command with check for error (?STB)
-        """
+    async def _write(self, command: str):
+        """asynchronous communication.  Follows command with check for error (?STB)"""
         try:
             await asyncio.sleep(0.1)
             self._ser.reset_input_buffer()
@@ -119,7 +115,7 @@ class SpectraPhysicsMillennia(UsesUart):
             stb = self._ser.read_until()
             stb = format(int(stb.decode().rstrip("\\n")), "08b")
             keys = ["cmd_err", "exe_err", "sys_err", "laser_on"]
-            status = {k: int(stb[::-1][i]) for k, i in zip(keys, [0,1,5,6])}
+            status = {k: int(stb[::-1][i]) for k, i in zip(keys, [0, 1, 5, 6])}
             self.logger.debug(f"status: {status}")
             self._emission = status.pop("laser_on")
             alarm = [k for k, v in status.items() if v]
