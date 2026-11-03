@@ -5,7 +5,6 @@ import regex as re
 import serial
 from yaqd_core import UsesUart, aserial
 
-
 query_re = re.compile(r"\?[A-Z,a-z,0-9,%]+\r")
 
 int_re = re.compile(r"\d+")
